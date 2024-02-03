@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "online-retail-transactions"
+name = "open-table-benchmlops"
 version = "0.1.0"
 description = ""
 authors = []
