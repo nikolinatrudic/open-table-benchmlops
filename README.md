@@ -1,1 +1,1 @@
-# online-transaction-data
+# Open Table formats MLOps benchmark
