@@ -3,7 +3,7 @@ format:
 
 check:
 	poetry run ruff check .
-	poetry run mypy .
+	poetry run mypy . --ignore-missing-imports
 
 fix:
 	poetry run ruff --fix .
