@@ -3,6 +3,7 @@ version: '2'
 services:
   spark:
     image: spark-bitnami
+    container_name: spark-master
     environment:
       - SPARK_MODE=master
       - SPARK_RPC_AUTHENTICATION_ENABLED=no
@@ -12,6 +13,8 @@ services:
       - SPARK_USER=spark
     ports:
       - '8080:8080'
+    networks:
+      - spark-network
   spark-worker:
     image: spark-bitnami
     environment:
@@ -24,3 +27,9 @@ services:
       - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
       - SPARK_SSL_ENABLED=no
       - SPARK_USER=spark
+    networks:
+      - spark-network
+
+networks:
+  spark-network:
+    driver: bridge
