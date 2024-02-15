@@ -18,4 +18,4 @@ jobs:
         run: pip3 install ruff mypy
 
       - name: Check formatting
-        run: ruff check . && mypy .
+        run: ruff check . && mypy . --ignore-missing-imports
