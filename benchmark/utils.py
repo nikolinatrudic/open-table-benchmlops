@@ -1,17 +1,18 @@
+from typing import Optional
+
 import docker
 from loguru import logger
 
-from typing import Optional
 
 def get_container_ip(container_name: str) -> Optional[str]:
     client = docker.from_env()
     try:
         container = client.containers.get(container_name)
-        networks = container.attrs['NetworkSettings']['Networks']
-        
+        networks = container.attrs["NetworkSettings"]["Networks"]
+
         ip_address = None
         for network_name, network_details in networks.items():
-            ip_address = network_details['IPAddress']
+            ip_address = network_details["IPAddress"]
 
         return ip_address
     except docker.errors.NotFound:
