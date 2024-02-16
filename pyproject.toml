@@ -5,7 +5,7 @@ description = ""
 authors = []
 readme = "README.md"
 packages = [
-    { include = "benchmark" }
+    { include = "benchmarking" }
 ]
 
 [tool.poetry.dependencies]
