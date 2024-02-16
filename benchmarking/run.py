@@ -2,7 +2,7 @@ import click
 from loguru import logger
 from pyspark.sql import SparkSession
 
-from benchmark.utils import get_container_ip
+from benchmarking.common import get_container_ip
 
 
 def create_spark_session(app_name: str, spark_cluster_ip: str):
