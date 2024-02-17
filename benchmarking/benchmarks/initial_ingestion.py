@@ -72,9 +72,9 @@ class InitialIngestionBenchmarkRunner(Benchmark):
             dataset_url=DATASET_URL, destination_path=str(DATASET_DESTINATION_PATH)
         )
         self.benchmarks = [
-            DeltaInitIngestionBenchmark(),
-            IcebergInitIngestionBenchmark(),
-            HudiInitIngestionBenchmark(),
+            DeltaInitialIngestionBenchmark(),
+            IcebergInitialIngestionBenchmark(),
+            HudiInitialIngestionBenchmark(),
         ]
 
     def start(self, spark: SparkSession) -> None:
