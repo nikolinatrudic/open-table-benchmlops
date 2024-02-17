@@ -12,7 +12,7 @@ DATASET_NAME = "Online Retail.xlsx"
 DATASET_DESTINATION_PATH = get_project_root() / "data" / DATASET_NAME
 
 
-class DeltaInitIngestionBenchmark(Benchmark):
+class DeltaInitialIngestionBenchmark(Benchmark):
     def start(self, spark: SparkSession):
         logger.info("[Delta] Running init ingestion benchmark")
 
@@ -32,7 +32,7 @@ class DeltaInitIngestionBenchmark(Benchmark):
         logger.info(f"[Delta] Init ingestion benchmark completed in {duration} seconds")
 
 
-class IcebergInitIngestionBenchmark(Benchmark):
+class IcebergInitialIngestionBenchmark(Benchmark):
     def start(self, spark: SparkSession):
         logger.info("[Iceberg] Running init ingestion benchmark")
 
@@ -50,7 +50,7 @@ class IcebergInitIngestionBenchmark(Benchmark):
         )
 
 
-class HudiInitIngestionBenchmark(Benchmark):
+class HudiInitialIngestionBenchmark(Benchmark):
     def start(self, spark: SparkSession):
         logger.info("[Hudi] Running init ingestion benchmark")
 
@@ -66,7 +66,7 @@ class HudiInitIngestionBenchmark(Benchmark):
         logger.info(f"[Hudi] Init ingestion benchmark completed in {duration} seconds")
 
 
-class InitIngestionBenchmarkRunner(Benchmark):
+class InitialIngestionBenchmarkRunner(Benchmark):
     def __init__(self) -> None:
         download_dataset(
             dataset_url=DATASET_URL, destination_path=str(DATASET_DESTINATION_PATH)

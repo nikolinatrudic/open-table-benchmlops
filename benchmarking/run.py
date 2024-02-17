@@ -9,7 +9,7 @@ from benchmarking.benchmarks import InvalidBenchmarkTypeException, get_benchmark
 @click.option(
     "--benchmark_type",
     type=click.Choice(
-        ["time-travel", "ingestion", "init-ingestion"], case_sensitive=False
+        ["time-travel", "ingestion", "initial-ingestion"], case_sensitive=False
     ),
     help="The benchmark to run.",
 )

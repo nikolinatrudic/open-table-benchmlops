@@ -2,8 +2,8 @@ from loguru import logger
 
 from benchmarking.benchmarks.base import Benchmark
 from benchmarking.benchmarks.ingestion import IngestionBenchmark
-from benchmarking.benchmarks.init_ingestion import (
-    InitIngestionBenchmarkRunner,
+from benchmarking.benchmarks.initial_ingestion import (
+    InitialIngestionBenchmarkRunner,
 )
 from benchmarking.benchmarks.time_travel import TimeTravelBenchmark
 
@@ -25,8 +25,8 @@ def get_benchmark_runner(benchmark_type: str) -> Benchmark:
         case "ingestion":
             logger.info("Initializing ingestion benchmark")
             return IngestionBenchmark()
-        case "init-ingestion":
-            return InitIngestionBenchmarkRunner()
+        case "initial-ingestion":
+            return InitialIngestionBenchmarkRunner()
         case _:
             logger.warning("Please specify a valid benchmark to run.")
             raise InvalidBenchmarkTypeException(benchmark_type)
