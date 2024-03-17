@@ -1,82 +1,106 @@
-import time
-
-import pandas as pd
 from loguru import logger
-from pyspark.sql import SparkSession
+from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql.functions import col, to_date
+from pyspark.sql.types import (
+    FloatType,
+    IntegerType,
+    StringType,
+    StructField,
+    StructType,
+    TimestampType,
+)
 
 from benchmarking.benchmarks.base import Benchmark
-from benchmarking.utils import download_dataset, get_project_root
+from benchmarking.settings import BenchmarkSettings
 
-DATASET_URL = "https://archive.ics.uci.edu/static/public/352/online+retail.zip"
-DATASET_NAME = "Online Retail.xlsx"
-DATASET_DESTINATION_PATH = get_project_root() / "data" / DATASET_NAME
+schema = StructType(
+    [
+        StructField("InvoiceNo", StringType(), True),
+        StructField("StockCode", StringType(), True),
+        StructField("Description", StringType(), True),
+        StructField("Quantity", IntegerType(), True),
+        StructField("InvoiceDate", TimestampType(), True),
+        StructField("UnitPrice", FloatType(), True),
+        StructField("CustomerID", IntegerType(), True),
+        StructField("Country", StringType(), True),
+    ]
+)
 
 
 class DeltaInitialIngestionBenchmark(Benchmark):
+    def __init__(self, benchmark_settings: BenchmarkSettings) -> None:
+        self.settings = benchmark_settings
+
     def start(self, spark: SparkSession):
         logger.info("[Delta] Running init ingestion benchmark")
 
-        df = pd.read_excel(str(DATASET_DESTINATION_PATH))
-        spark_df = spark.createDataFrame(df)
-
-        start_time = time.time()
-
-        print(spark_df.count())
-        # spark_df.write.format("delta").mode("overwrite").save(
-        #     str(get_project_root() / "data" / "delta")
-        # )
-
-        end_time = time.time()
-        duration = end_time - start_time
-
-        logger.info(f"[Delta] Init ingestion benchmark completed in {duration} seconds")
+        df = spark.read.csv(self.settings.csv_dataset_path, header=True, schema=schema)
+        df = df.withColumn("Date", to_date(col("InvoiceDate")))
+        df.write.format("delta").partitionBy(self.settings.partition_column).mode(
+            "overwrite"
+        ).save(f"{self.settings.data_path}/{self.settings.delta_table}")
 
 
 class IcebergInitialIngestionBenchmark(Benchmark):
+    def __init__(self, benchmark_settings: BenchmarkSettings) -> None:
+        self.settings = benchmark_settings
+
     def start(self, spark: SparkSession):
         logger.info("[Iceberg] Running init ingestion benchmark")
 
-        df = pd.read_excel(str(DATASET_DESTINATION_PATH))
-        spark_df = spark.createDataFrame(df)
+        df = spark.read.csv(self.settings.csv_dataset_path, header=True, schema=schema)
+        df = df.withColumn("Date", to_date(col("InvoiceDate")))
 
-        start_time = time.time()
+        sql_fields = self.generate_sql_fields(df)
+        create_table_command = f"""
+            CREATE TABLE {self.settings.iceberg_table} (
+                {sql_fields}
+            ) USING iceberg
+            PARTITIONED BY ({self.settings.partition_column});
+        """
 
-        print(spark_df.count())
-        end_time = time.time()
-        duration = end_time - start_time
+        spark.sql(create_table_command)
+        df.writeTo(self.settings.iceberg_table).overwritePartitions()
 
-        logger.info(
-            f"[Iceberg] Init ingestion benchmark completed in {duration} seconds"
-        )
+    def generate_sql_fields(self, df: DataFrame) -> str:
+        schema = df.schema
+
+        fields = []
+        for field in schema.fields:
+            field_sql = f"  {field.name} {field.dataType.simpleString()}"
+            fields.append(field_sql)
+
+        return ",\n  ".join(fields)
 
 
 class HudiInitialIngestionBenchmark(Benchmark):
+    def __init__(self, benchmark_settings: BenchmarkSettings) -> None:
+        self.settings = benchmark_settings
+
     def start(self, spark: SparkSession):
         logger.info("[Hudi] Running init ingestion benchmark")
 
-        df = pd.read_excel(str(DATASET_DESTINATION_PATH))
-        spark_df = spark.createDataFrame(df)
+        df = spark.read.csv(self.settings.csv_dataset_path, header=True, schema=schema)
+        df = df.withColumn("Date", to_date(col("InvoiceDate")))
 
-        start_time = time.time()
+        hudi_options = {
+            "hoodie.table.name": self.settings.hudi_table,
+            "hoodie.datasource.write.partitionpath.field": self.settings.partition_column,
+        }
 
-        print(spark_df.count())
-        end_time = time.time()
-        duration = end_time - start_time
-
-        logger.info(f"[Hudi] Init ingestion benchmark completed in {duration} seconds")
+        df.write.format("hudi").options(**hudi_options).mode("append").save(
+            f"{self.settings.data_path}/{self.settings.hudi_table}"
+        )
 
 
 class InitialIngestionBenchmarkRunner(Benchmark):
-    def __init__(self) -> None:
-        download_dataset(
-            dataset_url=DATASET_URL, destination_path=str(DATASET_DESTINATION_PATH)
-        )
-        self.benchmarks = [
-            DeltaInitialIngestionBenchmark(),
-            IcebergInitialIngestionBenchmark(),
-            HudiInitialIngestionBenchmark(),
-        ]
+    def __init__(self, format: str, benchmark_settings: BenchmarkSettings) -> None:
+        self.benchmarks = {
+            "delta": DeltaInitialIngestionBenchmark,
+            "iceberg": IcebergInitialIngestionBenchmark,
+            "hudi": HudiInitialIngestionBenchmark,
+        }
+        self.benchmark = self.benchmarks[format](benchmark_settings)  # type: ignore
 
     def start(self, spark: SparkSession) -> None:
-        for benchmark in self.benchmarks:
-            benchmark.start(spark)
+        self.benchmark.start(spark)
