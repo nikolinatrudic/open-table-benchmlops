@@ -94,16 +94,16 @@ class HudiTimeTravelBenchmark(Benchmark):
         )
 
     def get_commit_times(self, spark, base_path):
-        timeline = (
-            spark.read.format("hudi")
-            .load("s3a://data/" + base_path + "/*")
-            ._jdf.sparkSession()
-            .sql(
-                f"select distinct(_hoodie_commit_time) as commitTime from hudi.`{base_path}`"
-            )
-            .collect()
+        df = spark.read.format("hudi").load("s3a://data/" + base_path + "/*")
+        commitTimesDf = (
+            df.select("_hoodie_commit_time")
+            .distinct()
+            .orderBy("_hoodie_commit_time", ascending=False)
         )
-        return [row.asDict().get("commitTime") for row in timeline]
+
+        commitTimes = [row["_hoodie_commit_time"] for row in commitTimesDf.collect()]
+
+        return commitTimes
 
 
 class TimeTravelBenchmarkRunner(Benchmark):

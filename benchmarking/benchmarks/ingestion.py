@@ -45,6 +45,15 @@ class HudiIngestionBenchmark:
     def start(self, spark: SparkSession, fake_data: DataFrame):
         logger.info("[Hudi] Running init ingestion benchmark")
 
+        hudi_options = {
+            "hoodie.table.name": self.settings.hudi_table,
+            "hoodie.datasource.write.partitionpath.field": self.settings.partition_column,
+        }
+
+        fake_data.write.format("hudi").options(**hudi_options).mode("append").save(
+            f"{self.settings.data_path}/{self.settings.hudi_table}"
+        )
+
 
 class IngestionBenchmarkRunner(Benchmark):
     def __init__(self, format: str, benchmark_settings: BenchmarkSettings) -> None:

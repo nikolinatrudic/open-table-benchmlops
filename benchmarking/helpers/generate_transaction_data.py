@@ -90,7 +90,7 @@ def generate_fake_transactions(num_records: int, spark: SparkSession) -> DataFra
 if __name__ == "__main__":
     spark = SparkSession.builder.appName("FakeTransactionGeneration").getOrCreate()
     for i in range(3):
-        num_records = random.randint(10000, 1000000)
+        num_records = random.randint(10000, 50000)
         fake_transaction_data = generate_fake_transactions(
             num_records=num_records, spark=spark
         )

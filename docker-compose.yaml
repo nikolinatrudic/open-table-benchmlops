@@ -1,4 +1,4 @@
-version: '2'
+version: '3.8'
 
 services:
   localstack:
@@ -12,5 +12,4 @@ services:
       - HOSTNAME_EXTERNAL=localstack
       - DEFAULT_REGION=us-east-2
     volumes:
-      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
-      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./localstack_data:/var/lib/localstack"

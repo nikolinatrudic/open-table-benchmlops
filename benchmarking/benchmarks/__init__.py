@@ -34,10 +34,12 @@ def get_benchmark_runner(
                 format=format, benchmark_settings=benchmark_settings
             )
         case "initial-ingestion":
+            logger.info("Initializing initial ingestion benchmark")
             return InitialIngestionBenchmarkRunner(
                 format=format, benchmark_settings=benchmark_settings
             )
         case "query-efficiency":
+            logger.info("Initializing query efficiency benchmark")
             return QueryEfficiencyBenchmarkRunner(
                 format=format, benchmark_settings=benchmark_settings
             )

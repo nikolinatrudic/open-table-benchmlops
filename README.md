@@ -47,5 +47,18 @@ docker-compose up -d
 Run Your Benchmark Script:
 Use the following command to run your benchmarks, replacing [type] with the specific benchmark type you wish to execute:
 ```
-poetry run python benchmarking/run.py --benchmark_type [type]
+poetry run python benchmarking/run.py --spark_master [spark-master] --benchmark_type [type] --format [format]
 ```
+
+Benchmark type:
+- time-travel
+- query-efficiency
+
+Additional workload supporting types:
+- initial-ingestion
+- ingestion
+
+Format:
+- delta
+- iceberg
+- hudi

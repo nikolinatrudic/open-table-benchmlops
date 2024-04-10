@@ -79,6 +79,32 @@ class HudiQueryEfficiencyBenchmark(Benchmark):
 
     def start(self, spark: SparkSession):
         logger.info("[Hudi] Running query efficiency benchmark")
+        df = spark.read.format("hudi").load(
+            "s3a://data/" + self.settings.hudi_table + "/*"
+        )
+
+        logger.info("[Hudi] Running EDA queries")
+        eda_queries = eda.get_eda_queries(df)
+        for query_name, res_df in eda_queries.items():
+            logger.info(f"[Hudi] Running {query_name} query")
+            self.run_query(res_df)
+
+        logger.info("[Hudi] Running Feature Engineering queries")
+        fe_queries = feature_engineering.get_feature_engineering_queries(df)
+        for query_name, res_df in fe_queries.items():
+            logger.info(f"[Hudi] Running {query_name} query")
+            self.run_query(res_df)
+
+        logger.info("[Hudi] Running Model Training queries")
+        training_queries = training.get_model_training_queries(df)
+        for query_name, res_df in training_queries.items():
+            logger.info(f"[Hudi] Running {query_name} query")
+            self.run_query(res_df)
+
+    @measure_execution_time
+    def run_query(self, df):
+        count = df.count()
+        logger.info(f"Query returned {count} rows.")
 
 
 class QueryEfficiencyBenchmarkRunner(Benchmark):

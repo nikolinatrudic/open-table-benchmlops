@@ -22,11 +22,25 @@ copy-fake-transactions:
 	aws --endpoint-url=http://localhost:4566 s3 cp ./data/raw/FakeTransactionData2.csv s3://data/raw/FakeTransactionData2.csv
 
 start-cluster-3.5.0:
+	../spark-3.5.0-bin-hadoop3/sbin/start-history-server.sh
 	../spark-3.5.0-bin-hadoop3/sbin/start-master.sh
-	../spark-3.5.0-bin-hadoop3/sbin/start-worker.sh spark://nikolina:7077 -c 2 -m 2GB &
-	../spark-3.5.0-bin-hadoop3/sbin/start-worker.sh spark://nikolina:7077 -c 2 -m 2GB &
+	../spark-3.5.0-bin-hadoop3/sbin/start-worker.sh spark://nikolina:7077 -c 4 -m 4GB &
+	../spark-3.5.0-bin-hadoop3/sbin/start-worker.sh spark://nikolina:7077 -c 4 -m 4GB &
 
 stop-cluster-3.5.0:
+	../spark-3.5.0-bin-hadoop3/sbin/stop-history-server.sh
 	../spark-3.5.0-bin-hadoop3/sbin/stop-master.sh
 	../spark-3.5.0-bin-hadoop3/sbin/stop-worker.sh spark://nikolina:7077 &
 	../spark-3.5.0-bin-hadoop3/sbin/stop-worker.sh spark://nikolina:7077 &
+
+start-cluster-3.4.2:
+	../spark-3.4.2-bin-hadoop3/sbin/start-history-server.sh
+	../spark-3.4.2-bin-hadoop3/sbin/start-master.sh
+	../spark-3.4.2-bin-hadoop3/sbin/start-worker.sh spark://nikolina:7077 -c 4 -m 4GB &
+	../spark-3.4.2-bin-hadoop3/sbin/start-worker.sh spark://nikolina:7077 -c 4 -m 4GB &
+
+stop-cluster-3.4.2:
+	../spark-3.4.2-bin-hadoop3/sbin/stop-history-server.sh
+	../spark-3.4.2-bin-hadoop3/sbin/stop-master.sh
+	../spark-3.4.2-bin-hadoop3/sbin/stop-worker.sh spark://nikolina:7077 &
+	../spark-3.4.2-bin-hadoop3/sbin/stop-worker.sh spark://nikolina:7077 &

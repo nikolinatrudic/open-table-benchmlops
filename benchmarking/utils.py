@@ -11,6 +11,8 @@ from pyspark.sql import SparkSession
 def create_delta_spark_session(app_name: str, spark_master: str) -> SparkSession:
     builder = (
         SparkSession.builder.master(spark_master)
+        .config("spark.eventLog.enabled", True)
+        .config("spark.eventLog.dir", "/tmp/spark-events")
         .config("spark.jars.packages", "io.delta:delta-spark_2.12:3.1.0")
         .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:3.3.4")
         .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
@@ -38,6 +40,8 @@ def create_iceberg_spark_session(app_name: str, spark_master: str) -> SparkSessi
     spark = (
         SparkSession.builder.appName(app_name)
         .master(spark_master)
+        .config("spark.eventLog.enabled", True)
+        .config("spark.eventLog.dir", "/tmp/spark-events")
         .config(
             "spark.jars.packages",
             "org.apache.hadoop:hadoop-aws:3.3.4,org.apache.iceberg:iceberg-spark-runtime-3.4_2.12:1.3.0",
@@ -74,9 +78,11 @@ def create_hudi_spark_session(app_name: str, spark_master: str) -> SparkSession:
     spark = (
         SparkSession.builder.appName(app_name)
         .master(spark_master)
+        .config("spark.eventLog.enabled", True)
+        .config("spark.eventLog.dir", "/tmp/hudi-spark-events")
         .config(
             "spark.jars.packages",
-            "org.apache.hudi:hudi-spark3.4-bundle_2.12:0.14.1",
+            "org.apache.hadoop:hadoop-aws:3.3.4,org.apache.hudi:hudi-spark3-bundle_2.12:0.14.1",
         )
         .config(
             "spark.sql.extensions",
