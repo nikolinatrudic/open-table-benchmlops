@@ -17,8 +17,5 @@ jobs:
       - name: Install ruff
         run: pip3 install ruff mypy
 
-      - name: Mypy install types
-        run: mypy --install-types
-
       - name: Check formatting
         run: ruff check . && mypy . --ignore-missing-imports
